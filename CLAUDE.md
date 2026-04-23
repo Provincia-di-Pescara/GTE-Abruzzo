@@ -1,0 +1,101 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+**GTE-Abruzzo** (Gestionale Trasporti Eccezionali) is a multi-tenant SaaS platform developed by Provincia di Pescara to digitize the full lifecycle of exceptional vehicle transport authorizations in the Abruzzo region, intended for reuse across Italian public administration via Developers Italia.
+
+The application must comply with: Art. 10 D.Lgs 285/1992 (Codice della Strada), D.P.R. 495/1992 wear formulas, AgID guidelines, and MIT bridge-safety directives.
+
+## Development Commands
+
+```bash
+# Start all services concurrently (PHP server, queue, log viewer, Vite HMR)
+composer run dev
+
+# Or individually:
+php artisan serve          # Laravel dev server
+npm run dev                # Vite frontend with HMR
+npm run build              # Production frontend build
+php artisan queue:listen --tries=1  # Process async jobs
+php artisan pail           # Real-time log viewer
+
+# Database
+php artisan migrate
+php artisan migrate --seed
+
+# Code style (Laravel Pint)
+./vendor/bin/pint
+
+# Testing
+php artisan test                              # All tests
+php artisan test tests/Feature/ExampleTest.php  # Single test file
+php artisan test --testsuite=Unit             # Suite only
+php artisan test --testsuite=Feature
+```
+
+## Production Deployment (Docker)
+
+```bash
+docker-compose up -d --build
+docker-compose exec app composer install
+docker-compose exec app php artisan migrate --seed
+```
+
+The production stack runs: `app` (Laravel/PHP-FPM), `db` (MariaDB 10.11 with spatial extensions), `redis`, `osrm` (self-hosted routing engine), `chrome` (headless PDF rendering).
+
+## Architecture
+
+### Tech Stack
+- **Backend**: Laravel 11, PHP 8.2+ (8.3 recommended), Eloquent ORM
+- **Frontend**: Blade templates + Tailwind CSS 3 + Alpine.js, bundled via Vite 6
+- **Database**: MariaDB 10.11 with native GIS/spatial index support (required for route geometry)
+- **Queue/Cache**: Redis (async jobs for PEC email, PDF generation, payment webhooks)
+- **GIS Routing**: Self-hosted OSRM for snap-to-road route calculation
+- **PDF Generation**: Browsershot (Headless Chrome)
+- **Auth**: SPID/CIE via `laravel/socialite` + `socialiteproviders/manager`
+- **Payments**: PagoPA integration (planned)
+
+### Core Domain Model
+
+The central entity is the **application** (transport authorization request), which moves through a rigid state machine:
+
+```
+draft → submitted → waiting_clearances → waiting_payment → approved
+```
+
+Key Eloquent models (planned, not yet implemented):
+- `users` — natural persons with fiscal identity (SPID/CIE data)
+- `companies` — companies/agencies with delegations via `company_user` pivot
+- `vehicles` — tractor units and trailers with axle/weight configurations (`vehicle_axles`)
+- `entities` — municipalities, provinces, ANAS, motorways with GIS polygons and PEC addresses
+- `applications` — the transport authorization request and its state
+- `routes` — LineString geometry of the authorized route with per-entity km breakdown
+- `clearances` — third-party approvals (Nulla Osta) per entity per application
+- `tariffs` — historically-versioned wear coefficients used by `WearCalculationService`
+
+### RBAC Roles
+- `super-admin` — Provincia di Pescara operators (full access)
+- `operator` — other province operators
+- `third-party` — municipalities, ANAS (limited to their clearance dashboard)
+- `citizen` — transport companies/agencies submitting requests
+
+### Planned Services
+- **`WearCalculationService`** — computes road wear indemnity using per-axle weight × km × tariff coefficients (formula from D.P.R. 495/1992)
+- **GIS spatial queries** — `ST_Intersection` + `ST_Length` against entity polygon table to extract which entities a route traverses and how many km per entity
+- **AINOP integration** — via PDND API to verify bridge/infrastructure capacity along a route (field `codice_univoco_ainop` on infrastructure records)
+- **PagoPA clearing** — single IUV generated from `WearCalculationService` output; RT webhook unlocks the application; proceeds split among entities
+
+### Geographic/GIS Layer
+MariaDB spatial fields (`POLYGON`, `MULTIPOLYGON`, `LINESTRING`) store entity boundaries and route geometries. Spatial indices are required. The OSRM container must be pre-loaded with the regional road graph. The frontend uses Leaflet for the interactive map.
+
+## Conventions
+
+- PSR-4 autoloading: application code in `App\`, tests in `Tests\`
+- Services go in `App\Services\`, following the Laravel service-class pattern
+- Queue jobs in `App\Jobs\` for async operations (PEC, PDF, payments)
+- Snake_case table and column names; CamelCase model class names
+- Feature tests in `tests/Feature/`, unit tests in `tests/Unit/`
+- `.env.example` uses SQLite and database-driver queue/cache for local dev; production uses MariaDB + Redis
+- The project targets Italian PA compliance (EUPL-1.2 license, publiccode.yml required)
