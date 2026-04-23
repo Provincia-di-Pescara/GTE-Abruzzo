@@ -82,9 +82,9 @@ Il cuore innovativo è il motore geografico:
 
 ### 📦 9. Installazione Rapida
 ```bash
-# Clone repository
-git clone https://github.com/provincia-pescara/gte-abruzzo.git
-cd gte-abruzzo
+# Clone this repository
+git clone <repository-url>
+cd <repository-directory>
 
 # Configurazione environment
 cp .env.example .env
