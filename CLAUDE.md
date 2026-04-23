@@ -15,25 +15,28 @@ The application must comply with: Art. 10 D.Lgs 285/1992 (Codice della Strada), 
 composer run dev
 
 # Or individually:
-php artisan serve          # Laravel dev server
-npm run dev                # Vite frontend with HMR
-npm run build              # Production frontend build
-php artisan queue:listen --tries=1  # Process async jobs
-php artisan pail           # Real-time log viewer
+php artisan serve                    # Laravel dev server
+npm run dev                          # Vite frontend with HMR
+npm run build                        # Production frontend build
+php artisan queue:listen --tries=1   # Process async jobs
+php artisan pail                     # Real-time log viewer
 
 # Database
 php artisan migrate
 php artisan migrate --seed
 
-# Code style (Laravel Pint)
-./vendor/bin/pint
+# Code style — run before finalizing any change
+./vendor/bin/pint --dirty
 
 # Testing
-php artisan test                              # All tests
-php artisan test tests/Feature/ExampleTest.php  # Single test file
-php artisan test --testsuite=Unit             # Suite only
-php artisan test --testsuite=Feature
+php artisan test --compact                              # All tests
+php artisan test --compact tests/Feature/SomeTest.php  # Single file
+php artisan test --compact --filter=test_name          # Single test
+php artisan test --compact --testsuite=Unit
+php artisan test --compact --testsuite=Feature
 ```
+
+Every code change must be covered by a test (new or updated). Run only the minimum tests needed to verify the change.
 
 ## Production Deployment (Docker)
 
@@ -43,12 +46,12 @@ docker-compose exec app composer install
 docker-compose exec app php artisan migrate --seed
 ```
 
-The production stack runs: `app` (Laravel/PHP-FPM), `db` (MariaDB 10.11 with spatial extensions), `redis`, `osrm` (self-hosted routing engine), `chrome` (headless PDF rendering).
+The production stack runs: `app` (Laravel/PHP-FPM + Nginx), `db` (MariaDB 10.11 with spatial extensions), `redis`, `osrm` (self-hosted routing engine), `chrome` (headless PDF rendering).
 
 ## Architecture
 
 ### Tech Stack
-- **Backend**: Laravel 11, PHP 8.2+ (8.3 recommended), Eloquent ORM
+- **Backend**: Laravel 11, PHP 8.3 (8.2+ minimum), Eloquent ORM
 - **Frontend**: Blade templates + Tailwind CSS 3 + Alpine.js, bundled via Vite 6
 - **Database**: MariaDB 10.11 with native GIS/spatial index support (required for route geometry)
 - **Queue/Cache**: Redis (async jobs for PEC email, PDF generation, payment webhooks)
@@ -90,12 +93,59 @@ Key Eloquent models (planned, not yet implemented):
 ### Geographic/GIS Layer
 MariaDB spatial fields (`POLYGON`, `MULTIPOLYGON`, `LINESTRING`) store entity boundaries and route geometries. Spatial indices are required. The OSRM container must be pre-loaded with the regional road graph. The frontend uses Leaflet for the interactive map.
 
-## Conventions
+### Architecture Docs
+The `.ai/` directory (to be created) contains deep-dive documentation on complex subsystems: `STATE_MACHINE.md`, `GIS_ROUTING.md`, `WEAR_CALCULATION.md`, `PAGOPA.md`. Read these before working on the relevant domain.
 
-- PSR-4 autoloading: application code in `App\`, tests in `Tests\`
-- Services go in `App\Services\`, following the Laravel service-class pattern
-- Queue jobs in `App\Jobs\` for async operations (PEC, PDF, payments)
-- Snake_case table and column names; CamelCase model class names
-- Feature tests in `tests/Feature/`, unit tests in `tests/Unit/`
-- `.env.example` uses SQLite and database-driver queue/cache for local dev; production uses MariaDB + Redis
-- The project targets Italian PA compliance (EUPL-1.2 license, publiccode.yml required)
+## PHP & Laravel Conventions
+
+### Strict Typing
+Every PHP file must begin with `declare(strict_types=1);`. Always declare explicit return types on all methods and functions. Use PHP 8 type hints for all parameters.
+
+```php
+declare(strict_types=1);
+
+// Correct
+public function calculate(Vehicle $vehicle, int $km): Money { ... }
+
+// Correct — constructor property promotion
+public function __construct(
+    private readonly TariffRepository $tariffs,
+    private readonly RouteRepository $routes,
+) {}
+```
+
+### Service Classes
+Services in `App\Services\` must be `final`. Use constructor property promotion with `private readonly` for injected dependencies.
+
+### Enums
+All enums go in `App\Enums\`. Enum case names must be TitleCase (e.g., `WaitingClearances`, `Approved`). Use backed enums (`string` or `int`) for values stored in the database.
+
+### Eloquent
+- Always use eager loading to prevent N+1 queries.
+- Prefer `Model::query()->...` over `DB::` raw queries.
+- Define casts in the `casts()` method, not the `$casts` property.
+- Always use Eloquent relationship methods with return type hints.
+
+### Controllers & Validation
+- Use `php artisan make:` commands with `--no-interaction` to generate all new files (models, migrations, controllers, jobs, etc.).
+- Always create dedicated `App\Http\Requests\` Form Request classes for validation — never validate inline in controllers.
+- Use named routes and the `route()` helper for all URL generation.
+
+### Configuration
+Never call `env()` outside of `config/` files. Always use `config('key')` in application code.
+
+### Middleware (Laravel 11)
+Middleware is configured in `bootstrap/app.php` via `Application::configure()->withMiddleware()`, not in a `Kernel.php`.
+
+### Comments & PHPDoc
+Prefer PHPDoc blocks over inline comments. Add inline comments only when the logic would surprise a reader — never to describe what the code does. Use array shape annotations in PHPDoc when the structure is non-obvious.
+
+### Code Style
+- Always use curly braces for control structures, even for single-line bodies.
+- Run `./vendor/bin/pint --dirty` before finalizing any set of changes.
+
+## Project Structure Notes
+- PSR-4: application code in `App\`, tests in `Tests\`
+- Jobs (async): `App\Jobs\` — PEC notifications, PDF generation, payment webhooks
+- `.env.example` uses SQLite + database-driver queue/cache for local dev; production uses MariaDB + Redis
+- EUPL-1.2 license; `publiccode.yml` must be kept up to date with any new dependencies or deployment requirements
