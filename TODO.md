@@ -34,7 +34,7 @@
 
 - [ ] **[1.1]** Migration `users` — identità fiscale SPID/CIE (codice fiscale, dati IDP)
 - [ ] **[1.1]** Integrazione SPID/CIE via Socialite + `socialiteproviders/spid`
-- [ ] **[1.2]** Setup Spatie Permission — seed ruoli: `super-admin`, `operator`, `third-party`, `citizen`, `law-enforcement`
+- [x] **[1.2]** Setup Spatie Permission — seed ruoli: `super-admin`, `operator`, `third-party`, `citizen`, `law-enforcement`
 - [ ] **[1.3]** Migration `companies` + pivot `company_user` (deleghe/procure)
 - [ ] **[1.3]** UI: richiesta e approvazione deleghe aziendali
 - [ ] **[1.4]** Migration `entities` — Comuni, Province, ANAS, Autostrade (GIS `MULTIPOLYGON`, PEC, ISTAT)
