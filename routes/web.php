@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\EntityController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Setup\SetupController;
 use Illuminate\Support\Facades\Route;
@@ -33,4 +35,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    // Admin: companies
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('companies', CompanyController::class);
+        Route::post('companies/{company}/delegations/{user}/action', [CompanyController::class, 'approveDelegation'])
+            ->name('companies.delegation.action');
+
+        Route::resource('entities', EntityController::class);
+    });
 });

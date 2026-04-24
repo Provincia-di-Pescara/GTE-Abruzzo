@@ -33,8 +33,38 @@
 <main class="max-w-4xl mx-auto px-6 py-12">
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-slate-900">Benvenuto, {{ auth()->user()->name }}</h1>
-        <p class="text-slate-500 mt-1">Il sistema GTE Abruzzo è operativo. Le funzionalità saranno disponibili nelle prossime versioni.</p>
+        <p class="text-slate-500 mt-1">Il sistema GTE Abruzzo è operativo.</p>
     </div>
+
+    {{-- Admin quick links --}}
+    @if(auth()->user()->hasAnyRole(['super-admin', 'operator']))
+    <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="{{ route('admin.companies.index') }}"
+           class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                <svg class="w-5 h-5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-semibold text-slate-900 text-sm">Aziende</p>
+                <p class="text-xs text-slate-500 mt-0.5">Gestione aziende e deleghe operative</p>
+            </div>
+        </a>
+        <a href="{{ route('admin.entities.index') }}"
+           class="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                <svg class="w-5 h-5 text-purple-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21 12 3l9.75 18H2.25Zm9.75-3v-5.25" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-semibold text-slate-900 text-sm">Enti territoriali</p>
+                <p class="text-xs text-slate-500 mt-0.5">Comuni, Province, ANAS, Autostrade</p>
+            </div>
+        </a>
+    </div>
+    @endif
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach([
