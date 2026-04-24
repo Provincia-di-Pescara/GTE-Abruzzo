@@ -134,6 +134,25 @@ All enums in `App\Enums\`. Case names TitleCase (e.g., `WaitingClearances`, `App
 ### Configuration
 Never call `env()` outside `config/` files. Use `config('key')` in app code.
 
+### .env — bootstrap and network topology only
+`.env` contains exactly: `APP_KEY`, `APP_ENV`, `APP_URL`, DB credentials, Redis credentials, `OSRM_BASE_URL`, `CHROMIUM_PATH`. Nothing else.
+
+Everything else goes to the **database** and is managed via **admin UI**:
+- App behaviour: debug mode, timezone, locale/i18n, maintenance mode
+- Mail/SMTP server and credentials
+- Integration credentials: SPID SP metadata, PagoPA station IDs, PDND client keys, Firma Remota endpoints, etc.
+
+`APP_VERSION*` are Docker build ARGs injected by CI/CD — not runtime env vars.
+
+### Database — always MariaDB
+MariaDB 11.4 LTS is the only supported database, including local development. No SQLite fallback. Local dev uses `docker compose up` with the `db` service.
+
+### Production deployment — Portainer, no shell access
+Production runs on Portainer (Docker stack). There is no shell access to running containers. Consequences:
+- Migrations run automatically on container startup via `entrypoint.sh` (`php artisan migrate --force`).
+- Seeders for required bootstrap data (roles, permissions, default settings) must run via a dedicated idempotent seeder called by the entrypoint, not manually.
+- One-off operations must be implemented as Artisan commands triggerable via a Portainer exec or a dedicated admin UI action — never assume shell availability.
+
 ### Middleware (Laravel 13)
 Middleware configured in `bootstrap/app.php` via `Application::configure()->withMiddleware()`, not `Kernel.php`. Laravel 13 keeps streamlined structure from Laravel 11.
 
