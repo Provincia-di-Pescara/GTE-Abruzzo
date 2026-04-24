@@ -31,15 +31,18 @@ La scelta delle tecnologie mira alla massima modernità e stabilità (Long Term 
 
 | Layer | Tecnologia | Versione | Ruolo |
 | :--- | :--- | :--- | :--- |
-| **Framework** | Laravel | 12.x | Logica di business, Eloquent ORM, API Gateway |
+| **Framework** | Laravel | 13.x | Logica di business, Eloquent ORM, API Gateway |
 | **Linguaggio** | PHP (PHP-FPM) | 8.4 | Performance elevate e tipizzazione forte |
 | **Web Server** | Nginx | stable | Gestione richieste e security hardening |
 | **Database** | MariaDB LTS | 11.4 | RDBMS con supporto nativo GIS (Spatial Index) |
-| **Cache/Queue** | Redis | latest | Gestione code asincrone (PEC, PDF, Pagamenti) |
+| **Cache/Queue** | Redis | 7.x | Gestione code asincrone (PEC, PDF, Pagamenti) |
 | **Frontend** | Tailwind CSS v4 + Alpine.js | v4 / v3 | UI zero-runtime, reattiva e conforme alle linee guida design PA |
+| **Build Tool** | Vite | 6.x | HMR in dev, bundle ottimizzato in prod |
+| **RBAC** | Spatie Laravel Permission | 6.x | Ruoli e permessi granulari (super-admin, operator, third-party, citizen) |
 | **Routing GIS** | OSRM | latest | Motore di routing self-hosted per il calcolo dei percorsi |
-| **PDF Engine** | Headless Chrome (Browsershot) | latest | Generazione PDF via Chromium per layout complessi |
+| **PDF Engine** | Browsershot (spatie/browsershot) | 5.x | Generazione PDF via Chromium per layout complessi |
 | **Container** | Docker + Docker Compose | latest | Pacchettizzazione completa per il rilascio a riuso |
+| **Node.js** | Node.js LTS | 22.x | Runtime per build assets frontend |
 
 ---
 
@@ -47,11 +50,10 @@ La scelta delle tecnologie mira alla massima modernità e stabilità (Long Term 
 
 Il sistema è distribuito tramite una flotta di container cooperanti:
 
-- `app`: Il cuore del sistema in Laravel (PHP-FPM + Nginx nello stesso container).
+- `app`: Il cuore del sistema in Laravel (PHP-FPM + Nginx nello stesso container). Include Chromium per la generazione PDF via Browsershot.
 - `db`: MariaDB 11.4 LTS con storage spaziale per i confini territoriali.
-- `osrm`: Motore di routing caricato con il grafo stradale regionale abruzzese.
-- `chrome`: Servizio dedicato al rendering dei PDF (Headless Chrome).
 - `redis`: Gestore delle code per l'invio delle notifiche e l'elaborazione dei pareri.
+- `osrm`: Motore di routing caricato con il grafo stradale regionale abruzzese (attivato con `--profile gis`).
 
 ---
 
@@ -115,13 +117,15 @@ Le linee guida MIT per la sicurezza dei ponti e la gestione dei trasporti eccezi
 
 ### 10. Roadmap di Sviluppo
 
-| Fase | Obiettivo |
-| :--- | :--- |
-| **Phase 1: Foundation** | Setup Docker, Auth SPID/CIE, RBAC e gestione deleghe |
-| **Phase 2: Territorio** | Importazione confini amministrativi e setup OSRM |
-| **Phase 3: Garage & Calcolo** | Anagrafica mezzi e motore di calcolo indennizzi (`WearCalculationService`) |
-| **Phase 4: Workflow** | Scrivania Enti Terzi, state machine, job asincroni PEC |
-| **Phase 5: Compliance** | Integrazione PagoPA, Protocollo Informatico e Firma Remota PAdES |
+| Versione | Milestone | Obiettivo | Stato |
+| :--- | :--- | :--- | :--- |
+| **v0.1.x** | Stack | Laravel 13 / PHP 8.4 / Tailwind v4 / Alpine.js / Docker Compose | ✅ Completato |
+| **v0.2.x** | M1 — Foundation | Auth SPID/CIE, RBAC (Spatie), anagrafiche `users`/`companies`/`entities` | 🔜 In sviluppo |
+| **v0.3.x** | M2 — Garage & Calcolo | Anagrafica mezzi, assi, `WearCalculationService` (D.P.R. 495/1992) | ⏳ Pianificato |
+| **v0.4.x** | M3 — WebGIS | Confini GIS, Leaflet, OSRM snap-to-road, intersezione spaziale | ⏳ Pianificato |
+| **v0.5.x** | M4 — Workflow | State machine, Scrivania Enti Terzi, job PEC asincroni | ⏳ Pianificato |
+| **v0.6.x** | M5 — Compliance | PagoPA, PDF Browsershot, Protocollo Informatico, Firma PAdES | ⏳ Pianificato |
+| **v1.0.0** | GA | AINOP/PDND integration, security audit, AgID compliance | ⏳ Pianificato |
 
 ---
 
@@ -147,7 +151,7 @@ docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 ```
 
-> **Nota:** Il progetto richiede PHP 8.4 e MariaDB 11.4 LTS. Per lo sviluppo locale senza Docker è possibile usare SQLite (`DB_CONNECTION=sqlite`) e il comando `composer run dev` per avviare tutti i servizi concorrenti (server, queue, log, Vite).
+> **Nota:** Il progetto richiede PHP 8.4+, Node 22 LTS e MariaDB 11.4 LTS. Per lo sviluppo locale senza Docker è possibile usare SQLite (`DB_CONNECTION=sqlite`) e il comando `composer run dev` per avviare tutti i servizi concorrenti (server, queue, log, Vite). Il container `osrm` richiede il grafo stradale pre-processato — avviarlo con `docker compose --profile gis up`.
 
 ---
 

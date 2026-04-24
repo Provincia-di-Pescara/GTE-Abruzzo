@@ -46,12 +46,12 @@ docker-compose exec app composer install
 docker-compose exec app php artisan migrate --seed
 ```
 
-Prod stack: `app` (Laravel/PHP-FPM + Nginx), `db` (MariaDB 10.11 with spatial extensions), `redis`, `osrm` (self-hosted routing engine), `chrome` (headless PDF rendering).
+Prod stack: `app` (Laravel/PHP-FPM + Nginx + Chromium), `db` (MariaDB 11.4 LTS with spatial extensions), `redis:7`, `osrm` (self-hosted routing engine, `--profile gis`).
 
 ## Architecture
 
 ### Tech Stack
-- **Backend**: Laravel 12, PHP 8.4, Eloquent ORM
+- **Backend**: Laravel 13, PHP 8.4, Eloquent ORM
 - **Frontend**: Blade + Tailwind CSS v4 (zero-runtime) + Alpine.js, Vite 6
 - **Database**: MariaDB 11.4 LTS, native GIS/spatial index (required for route geometry)
 - **Queue/Cache**: Redis (async: PEC email, PDF generation, payment webhooks)
@@ -134,8 +134,8 @@ All enums in `App\Enums\`. Case names TitleCase (e.g., `WaitingClearances`, `App
 ### Configuration
 Never call `env()` outside `config/` files. Use `config('key')` in app code.
 
-### Middleware (Laravel 12)
-Middleware configured in `bootstrap/app.php` via `Application::configure()->withMiddleware()`, not `Kernel.php`. Laravel 12 keeps streamlined structure from Laravel 11.
+### Middleware (Laravel 13)
+Middleware configured in `bootstrap/app.php` via `Application::configure()->withMiddleware()`, not `Kernel.php`. Laravel 13 keeps streamlined structure from Laravel 11.
 
 ### Comments & PHPDoc
 Prefer PHPDoc over inline comments. Inline only when logic surprises reader — never describe what code does. Array shape annotations in PHPDoc when structure non-obvious.
