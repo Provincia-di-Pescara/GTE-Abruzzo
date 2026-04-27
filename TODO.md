@@ -34,7 +34,11 @@
 
 - [ ] **[1.1]** Migration `users` — identità fiscale SPID/CIE (codice fiscale, dati IDP)
 - [ ] **[1.1]** Integrazione SPID/CIE via Socialite + `socialiteproviders/spid`
+- [ ] **[1.1]** Accesso fallback solo in ambiente `local/dev` con credenziali base per `super-admin`/utenti seedati, da disabilitare automaticamente negli ambienti con SPID/CIE attivo
 - [ ] **[1.2]** Setup Spatie Permission — seed ruoli: `super-admin`, `operator`, `third-party`, `citizen`, `law-enforcement`
+- [ ] **[1.2]** Seeder bootstrap idempotente per parametri iniziali di installazione: super-admin iniziale, ente capofila, impostazioni applicative minime, configurazione mail/SMTP, canali notifiche, metadata SPID/PagoPA/PDND/Firma Remota come placeholder amministrabili da UI
+- [ ] **[1.2]** Procedura di first-run del `super-admin`: credenziali bootstrap o token/password temporanea con obbligo di rotazione al primo accesso
+- [ ] **[1.2]** Procedura di recupero accesso amministrativo: comando/azione controllata per rigenerare accesso `super-admin` in caso di perdita credenziali, senza interventi manuali sul database
 - [ ] **[1.3]** Migration `companies` + pivot `company_user` (deleghe/procure)
 - [ ] **[1.3]** UI: richiesta e approvazione deleghe aziendali
 - [ ] **[1.4]** Migration `entities` — Comuni, Province, ANAS, Autostrade (GIS `MULTIPOLYGON`, PEC, ISTAT)

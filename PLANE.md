@@ -75,8 +75,15 @@ Il lavoro è suddiviso in 5 blocchi operativi (Sprint/Milestone), progettati per
 * **[Task 1.1] Integrazione SPID/CIE:**
   * Configurazione del package `GovPay-Interaction-Layer` in Laravel.
   * Creazione delle *Migrations* per la tabella `users` (dati fiscali persona fisica).
+  * In ambiente `local/dev` deve esistere un accesso fallback con credenziali base per utenti seedati, utile a evitare lock operativo quando SPID/CIE non è ancora configurato; tale accesso deve essere escluso o disattivato automaticamente negli ambienti reali.
 * **[Task 1.2] Sistema RBAC (Role-Based Access Control):**
   * Setup dei ruoli e permessi: `super-admin` (Provincia Pescara), `operator` (Altre Province), `third-party` (Comuni/ANAS), `citizen` (Richiedente).
+* **[Task 1.2-bis] Bootstrap applicativo iniziale e seed parametri di sistema:**
+  * Creazione di un seeder idempotente eseguito al bootstrap del container/applicazione per valorizzare i dati minimi di avvio: utente `super-admin`, ente capofila, impostazioni applicative, parametri mail/SMTP, canali notifica e placeholder per le integrazioni esterne.
+  * I parametri operativi non devono vivere in `.env` oltre al minimo bootstrap infrastrutturale: devono essere persistiti a database e gestibili successivamente da backoffice `super-admin`.
+  * Prima attivazione controllata del `super-admin`: password o token temporaneo iniziale con obbligo di cambio credenziali al primo accesso.
+  * In sviluppo, il bootstrap deve predisporre anche credenziali note e documentate per l'accesso locale del `super-admin`, così da consentire test e onboarding anche senza federazione SPID/CIE attiva.
+  * Predisposizione di una "porta di sicurezza" per il recupero accesso: comando amministrativo o azione one-off tracciata che consenta di rigenerare l'accesso `super-admin` in caso di smarrimento credenziali, senza manipolazioni manuali del DB.
 * **[Task 1.3] Modulo Aziende e Deleghe:**
   * *Migrations* per `companies` (Aziende/Agenzie) e tabella pivot `company_user` per la gestione delle procure/deleghe.
   * UI (Frontend) per la richiesta e l'approvazione delle deleghe.
