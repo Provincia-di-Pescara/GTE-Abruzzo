@@ -14,7 +14,7 @@ final class EnsureSetupComplete
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->routeIs('setup.*') || $request->routeIs('login') || $request->routeIs('logout')) {
+        if ($request->routeIs('setup.*') || $request->routeIs('logout')) {
             return $next($request);
         }
 

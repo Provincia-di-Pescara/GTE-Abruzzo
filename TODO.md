@@ -39,6 +39,8 @@
 - [ ] **[1.3]** UI: richiesta e approvazione deleghe aziendali
 - [ ] **[1.4]** Migration `entities` — Comuni, Province, ANAS, Autostrade (GIS `MULTIPOLYGON`, PEC, ISTAT)
 - [ ] **[1.4]** CRUD entità amministrative (solo `super-admin`)
+- [ ] **[1.5]** Pagina impostazioni admin — sezione Mail: modifica SMTP + tasto "Invia email di test"
+- [ ] **[1.6]** Setup: tasto "Invia email di test"
 
 ---
 

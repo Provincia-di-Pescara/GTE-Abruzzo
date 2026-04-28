@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,9 +15,8 @@ return new class extends Migration
         Schema::create('entities', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->string('tipo', 20); // comune|provincia|anas|autostrada|regione
+            $table->string('tipo', 20);
             $table->string('codice_istat', 10)->nullable()->unique();
-            $table->multiPolygon('geom')->nullable();
             $table->string('pec')->nullable();
             $table->string('email')->nullable();
             $table->string('telefono', 50)->nullable();
@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('codice_sdi', 7)->nullable();
             $table->timestamps();
         });
+
+        DB::statement('ALTER TABLE entities ADD COLUMN geom MULTIPOLYGON NULL');
     }
 
     /**
