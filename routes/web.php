@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\EntityController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OidcController;
 use App\Http\Controllers\Citizen\DelegationController;
@@ -48,12 +49,18 @@ Route::middleware('auth')->group(function () {
         Route::resource('delegations', DelegationController::class)->only(['index', 'create', 'store']);
     });
 
-    // Admin: companies
+    // Admin
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('companies', CompanyController::class);
         Route::post('companies/{company}/delegations/{user}/action', [CompanyController::class, 'approveDelegation'])
             ->name('companies.delegation.action');
 
         Route::resource('entities', EntityController::class);
+
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('mail', [SettingController::class, 'showMail'])->name('mail');
+            Route::put('mail', [SettingController::class, 'updateMail'])->name('mail.update');
+            Route::post('mail/test', [SettingController::class, 'testMail'])->name('mail.test');
+        });
     });
 });
