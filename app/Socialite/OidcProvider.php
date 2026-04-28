@@ -27,7 +27,7 @@ final class OidcProvider extends AbstractProvider
         return rtrim((string) config('services.oidc.base_url'), '/');
     }
 
-    protected function getAuthUrl(string $state): string
+    protected function getAuthUrl($state): string
     {
         $endpoint = config('services.oidc.authorization_endpoint')
             ?? $this->issuer().'/authorization';
@@ -42,7 +42,7 @@ final class OidcProvider extends AbstractProvider
     }
 
     /** @return array<string, mixed> */
-    protected function getUserByToken(string $token): array
+    protected function getUserByToken($token): array
     {
         $endpoint = (string) (config('services.oidc.userinfo_endpoint')
             ?? $this->issuer().'/userinfo');

@@ -46,8 +46,8 @@ final class WearCalculationServiceTest extends TestCase
             100.0
         );
 
-        // (10000/1000)^4 × 100 × 0.001 = 10^4 × 0.1 = 10000 × 0.1 = 10.0
-        $this->assertEqualsWithDelta(10.0, $result, 0.000001);
+        // (10000/1000)^4 × 100 × 0.001 = 10^4 × 100 × 0.001 = 10000 × 0.1 = 1000.0
+        $this->assertEqualsWithDelta(1000.0, $result, 0.000001);
     }
 
     public function test_calculates_multiple_axles_summing_contributions(): void
@@ -74,10 +74,10 @@ final class WearCalculationServiceTest extends TestCase
             100.0
         );
 
-        // Singolo: (10000/1000)^4 × 100 × 0.001 = 10000 × 0.1 = 10.0
-        // Tandem:  (5000/1000)^4  × 100 × 0.002 = 625 × 0.2  = 125.0
-        // Total = 135.0
-        $this->assertEqualsWithDelta(135.0, $result, 0.000001);
+        // Singolo: (10000/1000)^4 × 100 × 0.001 = 10000 × 0.1 = 1000.0
+        // Tandem:  (5000/1000)^4  × 100 × 0.002 = 625  × 0.2  = 125.0
+        // Total = 1125.0
+        $this->assertEqualsWithDelta(1125.0, $result, 0.000001);
     }
 
     public function test_throws_when_no_active_tariff_found(): void
