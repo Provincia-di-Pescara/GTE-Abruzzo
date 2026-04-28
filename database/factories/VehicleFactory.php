@@ -23,7 +23,7 @@ final class VehicleFactory extends Factory
             'company_id' => Company::factory(),
             'tipo' => $tipo,
             'targa' => $this->generateTarga(),
-            'numero_telaio' => $this->faker->optional()->bothify('???##########??????'),
+            'numero_telaio' => $this->faker->optional()->bothify('???########??'),
             'marca' => $this->faker->randomElement(['Volvo', 'Scania', 'MAN', 'DAF', 'Mercedes', 'Iveco', 'Renault']),
             'modello' => $this->faker->bothify('FH?? ###'),
             'anno_immatricolazione' => $this->faker->numberBetween(2000, 2024),

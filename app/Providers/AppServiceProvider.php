@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Socialite\OidcProvider;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -20,5 +21,7 @@ class AppServiceProvider extends ServiceProvider
 
             return Socialite::buildProvider(OidcProvider::class, $config);
         });
+
+        Gate::policy(\App\Models\Vehicle::class, \App\Policies\VehiclePolicy::class);
     }
 }

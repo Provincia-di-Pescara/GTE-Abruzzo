@@ -28,6 +28,10 @@
                            class="px-3 py-1.5 rounded-md text-sm font-medium {{ request()->routeIs('my.delegations*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }} transition-colors">
                             Mie Deleghe
                         </a>
+                        <a href="{{ route('my.vehicles.index') }}"
+                           class="px-3 py-1.5 rounded-md text-sm font-medium {{ request()->routeIs('my.vehicles*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }} transition-colors">
+                            Miei Veicoli
+                        </a>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
