@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Setup;
 
 use App\Enums\UserRole;
+use App\Mail\TestMail;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -201,6 +203,35 @@ final class SetupWizardTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertOk();
+    }
+
+    public function test_can_send_test_email_during_setup(): void
+    {
+        Mail::fake();
+
+        $this->withSession([
+            'setup.admin' => ['name' => 'Admin', 'email' => 'admin@test.it', 'password' => 'pass'],
+        ])->post(route('setup.test-email'), [
+            'mail_host' => 'smtp.example.com',
+            'mail_port' => '587',
+            'mail_encryption' => 'tls',
+            'mail_username' => 'user@example.com',
+            'mail_password' => 'secret',
+            'mail_from_address' => 'noreply@example.com',
+            'mail_from_name' => 'GTE Abruzzo',
+        ])->assertRedirect(route('setup.step3'))
+            ->assertSessionHas('success');
+
+        Mail::assertSent(TestMail::class);
+    }
+
+    public function test_test_email_fails_without_mail_config(): void
+    {
+        $this->withSession([
+            'setup.admin' => ['name' => 'Admin', 'email' => 'admin@test.it', 'password' => 'pass'],
+        ])->post(route('setup.test-email'), [])
+            ->assertRedirect(route('setup.step3'))
+            ->assertSessionHas('error');
     }
 
     private function seedRoles(): void

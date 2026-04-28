@@ -22,6 +22,7 @@ Route::prefix('setup')->name('setup.')->group(function () {
     Route::post('/3', [SetupController::class, 'storeStep3'])->name('step3.store');
     Route::get('/riepilogo', [SetupController::class, 'showRiepilogo'])->name('riepilogo');
     Route::post('/complete', [SetupController::class, 'complete'])->name('complete');
+    Route::post('/test-email', [SetupController::class, 'testEmail'])->name('test-email');
 });
 
 // Authentication — local (operators/admins)

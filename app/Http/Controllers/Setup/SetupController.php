@@ -9,13 +9,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Setup\AdminAccountRequest;
 use App\Http\Requests\Setup\AppSettingsRequest;
 use App\Http\Requests\Setup\MailSettingsRequest;
+use App\Mail\TestMail;
 use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
+use Throwable;
 
 final class SetupController extends Controller
 {
@@ -138,5 +142,41 @@ final class SetupController extends Controller
         $request->session()->forget(['setup.admin', 'setup.app', 'setup.mail']);
 
         return redirect()->route('login')->with('setup_complete', true);
+    }
+
+    public function testEmail(Request $request): RedirectResponse
+    {
+        $host = $request->input('mail_host');
+
+        if (! $host) {
+            return redirect()->route('setup.step3')
+                ->with('error', 'Inserisci prima i dati SMTP prima di inviare un\'email di test.');
+        }
+
+        $adminEmail = $request->session()->get('setup.admin')['email'] ?? null;
+
+        if (! $adminEmail) {
+            return redirect()->route('setup.step3')
+                ->with('error', 'Completa prima il passo 1 (account amministratore) per definire il destinatario.');
+        }
+
+        Config::set('mail.mailers.smtp.host', $host);
+        Config::set('mail.mailers.smtp.port', $request->input('mail_port', 587));
+        Config::set('mail.mailers.smtp.encryption', $request->input('mail_encryption', 'tls'));
+        Config::set('mail.mailers.smtp.username', $request->input('mail_username'));
+        Config::set('mail.mailers.smtp.password', $request->input('mail_password'));
+        Config::set('mail.from.address', $request->input('mail_from_address'));
+        Config::set('mail.from.name', $request->input('mail_from_name', 'GTE Abruzzo'));
+        Config::set('mail.default', 'smtp');
+
+        try {
+            Mail::to($adminEmail)->send(new TestMail());
+
+            return redirect()->route('setup.step3')
+                ->with('success', 'Email di test inviata a '.$adminEmail.'.');
+        } catch (Throwable $e) {
+            return redirect()->route('setup.step3')
+                ->with('error', 'Invio fallito: '.$e->getMessage());
+        }
     }
 }
