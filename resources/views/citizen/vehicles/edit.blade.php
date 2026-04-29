@@ -1,173 +1,133 @@
 @extends('layouts.citizen')
 
-@section('title', 'Modifica veicolo — ' . $vehicle->targa)
-
 @section('content')
 <div class="mb-6">
-    <a href="{{ route('my.vehicles.show', $vehicle) }}" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-3">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-        </svg>
-        Torna al veicolo
-    </a>
-    <h1 class="text-xl font-bold text-slate-900">Modifica veicolo — <span class="font-mono">{{ $vehicle->targa }}</span></h1>
-    <p class="text-sm text-slate-500 mt-0.5">Modifica i dati del veicolo e la configurazione degli assi.</p>
+    <nav class="text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">
+        <a href="{{ route('my.vehicles.index') }}" class="hover:text-ink transition-colors">Veicoli</a>
+        <span class="mx-1">/</span>
+        <a href="{{ route('my.vehicles.show', $vehicle) }}" class="hover:text-ink transition-colors">{{ $vehicle->targa }}</a>
+        <span class="mx-1">/</span>
+        <span>Modifica</span>
+    </nav>
+    <h1 class="text-xl font-bold tracking-tight">Modifica veicolo — <span class="font-mono">{{ $vehicle->targa }}</span></h1>
+    <p class="text-sm text-ink-2 mt-1">Modifica i dati del veicolo e la configurazione degli assi.</p>
 </div>
 
-<form method="POST" action="{{ route('my.vehicles.update', $vehicle) }}">
+@if($errors->any())
+<div class="mb-4 rounded-lg bg-danger-bg border border-danger/30 p-4">
+    <ul class="list-disc list-inside text-sm text-danger space-y-1">
+        @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+    </ul>
+</div>
+@endif
+
+<form method="POST" action="{{ route('my.vehicles.update', $vehicle) }}" class="space-y-6">
     @csrf
     @method('PUT')
 
-    <div class="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-        <h2 class="text-sm font-semibold text-slate-700 mb-4">Dati generali</h2>
+    <div class="card p-6">
+        <h2 class="text-sm font-semibold mb-4 border-b border-line pb-2">Dati generali</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
             {{-- Azienda (read-only) --}}
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 mb-1">Azienda</label>
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Azienda</label>
                 <input type="text" value="{{ $vehicle->company->ragione_sociale }}" readonly
-                       class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
-                <p class="mt-1 text-xs text-slate-400">L'azienda non è modificabile dopo la creazione.</p>
+                       class="w-full h-9 rounded-md border border-line bg-surface-2 px-3 text-[13px] text-ink-2">
+                <p class="mt-1 text-[11px] text-ink-3">L'azienda non è modificabile dopo la creazione.</p>
             </div>
 
             {{-- Tipo --}}
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
-                    Tipo veicolo <span class="text-red-500">*</span>
-                </label>
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Tipo veicolo <span class="text-danger">*</span></label>
                 <select name="tipo"
-                        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                        class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors @error('tipo') border-danger @enderror">
                     @foreach(\App\Enums\VehicleType::cases() as $type)
                     <option value="{{ $type->value }}" {{ old('tipo', $vehicle->tipo->value) === $type->value ? 'selected' : '' }}>
                         {{ $type->label() }}
                     </option>
                     @endforeach
                 </select>
-                @error('tipo')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                @error('tipo')<p class="mt-1 text-[11px] text-danger">{{ $message }}</p>@enderror
             </div>
 
             {{-- Targa --}}
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">
-                    Targa <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="targa" value="{{ old('targa', $vehicle->targa) }}"
-                       maxlength="15"
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Targa <span class="text-danger">*</span></label>
+                <input type="text" name="targa" value="{{ old('targa', $vehicle->targa) }}" maxlength="15"
                        style="text-transform:uppercase"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono uppercase focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('targa')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] font-mono uppercase focus:border-accent focus:outline-none transition-colors @error('targa') border-danger @enderror">
+                @error('targa')<p class="mt-1 text-[11px] text-danger">{{ $message }}</p>@enderror
             </div>
 
             {{-- Numero telaio --}}
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Numero telaio (VIN)</label>
-                <input type="text" name="numero_telaio" value="{{ old('numero_telaio', $vehicle->numero_telaio) }}"
-                       maxlength="17"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('numero_telaio')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Numero telaio (VIN)</label>
+                <input type="text" name="numero_telaio" value="{{ old('numero_telaio', $vehicle->numero_telaio) }}" maxlength="17"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] font-mono focus:border-accent focus:outline-none transition-colors">
             </div>
 
             {{-- Marca --}}
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Marca</label>
-                <input type="text" name="marca" value="{{ old('marca', $vehicle->marca) }}"
-                       maxlength="100"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('marca')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Marca</label>
+                <input type="text" name="marca" value="{{ old('marca', $vehicle->marca) }}" maxlength="100"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
 
             {{-- Modello --}}
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Modello</label>
-                <input type="text" name="modello" value="{{ old('modello', $vehicle->modello) }}"
-                       maxlength="100"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('modello')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Modello</label>
+                <input type="text" name="modello" value="{{ old('modello', $vehicle->modello) }}" maxlength="100"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
 
             {{-- Anno immatricolazione --}}
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Anno immatricolazione</label>
-                <input type="number" name="anno_immatricolazione" value="{{ old('anno_immatricolazione', $vehicle->anno_immatricolazione) }}"
-                       min="1900" max="{{ date('Y') }}"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('anno_immatricolazione')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Anno immatricolazione</label>
+                <input type="number" name="anno_immatricolazione" value="{{ old('anno_immatricolazione', $vehicle->anno_immatricolazione) }}" min="1900" max="{{ date('Y') }}"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
-
         </div>
     </div>
 
     {{-- Dati massa --}}
-    <div class="bg-white rounded-xl border border-slate-200 p-6 mb-4">
-        <h2 class="text-sm font-semibold text-slate-700 mb-4">Massa e dimensioni</h2>
+    <div class="card p-6">
+        <h2 class="text-sm font-semibold mb-4 border-b border-line pb-2">Massa e dimensioni</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Massa a vuoto (kg)</label>
-                <input type="number" name="massa_vuoto" value="{{ old('massa_vuoto', $vehicle->massa_vuoto) }}"
-                       min="0"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('massa_vuoto')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Massa a vuoto (kg)</label>
+                <input type="number" name="massa_vuoto" value="{{ old('massa_vuoto', $vehicle->massa_vuoto) }}" min="0"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Massa complessiva / PTT (kg)</label>
-                <input type="number" name="massa_complessiva" value="{{ old('massa_complessiva', $vehicle->massa_complessiva) }}"
-                       min="0"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('massa_complessiva')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Massa complessiva / PTT (kg)</label>
+                <input type="number" name="massa_complessiva" value="{{ old('massa_complessiva', $vehicle->massa_complessiva) }}" min="0"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
         </div>
 
         <div class="grid grid-cols-3 gap-4">
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Lunghezza (mm)</label>
-                <input type="number" name="lunghezza" value="{{ old('lunghezza', $vehicle->lunghezza) }}"
-                       min="0"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('lunghezza')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Lunghezza (mm)</label>
+                <input type="number" name="lunghezza" value="{{ old('lunghezza', $vehicle->lunghezza) }}" min="0"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Larghezza (mm)</label>
-                <input type="number" name="larghezza" value="{{ old('larghezza', $vehicle->larghezza) }}"
-                       min="0"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('larghezza')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Larghezza (mm)</label>
+                <input type="number" name="larghezza" value="{{ old('larghezza', $vehicle->larghezza) }}" min="0"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Altezza (mm)</label>
-                <input type="number" name="altezza" value="{{ old('altezza', $vehicle->altezza) }}"
-                       min="0"
-                       class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                @error('altezza')
-                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-ink-2 mb-1.5">Altezza (mm)</label>
+                <input type="number" name="altezza" value="{{ old('altezza', $vehicle->altezza) }}" min="0"
+                       class="w-full h-9 px-3 rounded-md border border-line bg-surface text-[13px] focus:border-accent focus:outline-none transition-colors">
             </div>
         </div>
     </div>
 
     {{-- Configuratore assi --}}
-    <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6"
+    <div class="card p-6"
          x-data="{
             axles: [],
             addAxle() {
@@ -185,57 +145,47 @@
          }"
          x-init="axles = {{ Js::from($vehicle->axles->map(fn($a) => ['posizione' => $a->posizione, 'tipo' => $a->tipo->value, 'interasse' => $a->interasse ?? '', 'carico_tecnico' => $a->carico_tecnico])->values()) }}">
 
-        <div class="mb-3 flex items-center justify-between">
-            <h2 class="text-sm font-semibold text-slate-700">Configurazione assi <span class="text-red-500">*</span></h2>
-            <button type="button" @click="addAxle()"
-                    x-show="axles.length < 9"
-                    class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                + Aggiungi asse
+        <div class="mb-4 flex items-center justify-between border-b border-line pb-2">
+            <h2 class="text-sm font-semibold">Configurazione assi <span class="text-danger">*</span></h2>
+            <button type="button" @click="addAxle()" x-show="axles.length < 9" class="btn btn-sm btn-ghost">
+                <x-icon name="plus" size="14" /> Aggiungi asse
             </button>
         </div>
 
         @error('axles')
-            <p class="mb-2 text-xs text-red-600">{{ $message }}</p>
+            <p class="mb-2 text-[11px] text-danger">{{ $message }}</p>
         @enderror
 
         <template x-for="(axle, i) in axles" :key="i">
-            <div class="grid grid-cols-12 gap-2 mb-2 items-end">
-                {{-- Posizione (read-only) --}}
+            <div class="grid grid-cols-12 gap-3 mb-3 items-end">
                 <div class="col-span-1">
-                    <label class="text-xs text-slate-500">N°</label>
+                    <label class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-1.5">N°</label>
                     <input type="text" :value="axle.posizione" readonly
-                           class="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 text-sm text-center">
+                           class="w-full h-9 rounded-md border border-line bg-surface-2 px-2 text-[13px] text-center text-ink-2">
                     <input type="hidden" :name="`axles[${i}][posizione]`" :value="axle.posizione">
                 </div>
-                {{-- Tipo asse --}}
                 <div class="col-span-3">
-                    <label class="text-xs text-slate-500">Tipo</label>
+                    <label class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-1.5">Tipo</label>
                     <select :name="`axles[${i}][tipo]`" x-model="axle.tipo"
-                            class="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                            class="w-full h-9 rounded-md border border-line bg-surface px-2 text-[13px] focus:border-accent focus:outline-none transition-colors">
                         <option value="singolo">Singolo</option>
                         <option value="tandem">Tandem</option>
                         <option value="tridem">Tridem</option>
                     </select>
                 </div>
-                {{-- Interasse (mm) --}}
                 <div class="col-span-3">
-                    <label class="text-xs text-slate-500">Interasse (mm)</label>
-                    <input type="number" :name="`axles[${i}][interasse]`" x-model="axle.interasse"
-                           min="0" placeholder="es. 1300"
-                           class="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                    <label class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-1.5">Interasse (mm)</label>
+                    <input type="number" :name="`axles[${i}][interasse]`" x-model="axle.interasse" min="0" placeholder="es. 1300"
+                           class="w-full h-9 rounded-md border border-line bg-surface px-2 text-[13px] focus:border-accent focus:outline-none transition-colors">
                 </div>
-                {{-- Carico tecnico (kg) --}}
                 <div class="col-span-4">
-                    <label class="text-xs text-slate-500">Carico tecnico (kg) <span class="text-red-500">*</span></label>
-                    <input type="number" :name="`axles[${i}][carico_tecnico]`" x-model="axle.carico_tecnico"
-                           min="1" required placeholder="es. 8000"
-                           class="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                    <label class="block text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-1.5">Carico tecnico (kg) <span class="text-danger">*</span></label>
+                    <input type="number" :name="`axles[${i}][carico_tecnico]`" x-model="axle.carico_tecnico" min="1" required placeholder="es. 8000"
+                           class="w-full h-9 rounded-md border border-line bg-surface px-2 text-[13px] focus:border-accent focus:outline-none transition-colors">
                 </div>
-                {{-- Rimuovi --}}
                 <div class="col-span-1">
-                    <button type="button" @click="removeAxle(i)"
-                            x-show="axles.length > 1"
-                            class="w-full py-2 text-red-500 hover:text-red-700 transition-colors">
+                    <button type="button" @click="removeAxle(i)" x-show="axles.length > 1"
+                            class="w-full h-9 flex items-center justify-center text-danger hover:bg-danger-bg hover:text-danger rounded-md transition-colors">
                         &#x2715;
                     </button>
                 </div>
@@ -243,15 +193,9 @@
         </template>
     </div>
 
-    <div class="flex items-center justify-end gap-3">
-        <a href="{{ route('my.vehicles.show', $vehicle) }}"
-           class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">
-            Annulla
-        </a>
-        <button type="submit"
-                class="inline-flex items-center gap-1.5 px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-            Salva modifiche
-        </button>
+    <div class="flex gap-3">
+        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+        <a href="{{ route('my.vehicles.show', $vehicle) }}" class="btn">Annulla</a>
     </div>
 
 </form>

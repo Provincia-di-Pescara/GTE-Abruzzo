@@ -57,14 +57,14 @@ Prod stack: `app` (Laravel/PHP-FPM + Nginx + Chromium), `db` (MariaDB 11.4 LTS w
 |--------|--------|-------|
 | `v0.2.x` | ✅ Done | Identity & RBAC — SPID/CIE OIDC, users, companies, entities, setup wizard |
 | `v0.3.x` | ✅ Done | Garage Virtuale — vehicles, axles, WearCalculationService, admin tariffario |
-| `v0.4.x` | ✅ Done | WebGIS & Routing — Leaflet, OSRM, routes, roadworks, RouteIntersectionService |
+| `v0.4.x` | ✅ Done | WebGIS & Routing — Leaflet, OSRM, routes, roadworks, RouteIntersectionService, impersonazione, pannello impostazioni |
 | `v0.5.x` | 🔜 Next | State Machine — application wizard, clearances (Nulla Osta), PEC notifications |
 | `v0.6.x` | Planned | PagoPA & PDF — payments, PAdES signature, protocollo |
 | `v1.0.0` | Planned | AINOP/PDND — national infrastructure integration |
 
 ## Missing Features (to plan)
 
-- [ ] Menu sistema e impostazioni per il branding e la configurazione (admin UI, to be planned in v0.5.x or dedicated milestone)
+- [x] Menu sistema e impostazioni per il branding e la configurazione (admin UI) — implementato in v0.4.x
 
 ## Architecture
 

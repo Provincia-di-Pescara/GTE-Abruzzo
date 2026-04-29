@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\EntityController;
+use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TariffController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OidcController;
 use App\Http\Controllers\Citizen\DelegationController;
 use App\Http\Controllers\Citizen\RouteBuilderController;
 use App\Http\Controllers\Citizen\VehicleController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setup\SetupController;
 use App\Http\Controllers\ThirdParty\RoadworkController;
 use Illuminate\Support\Facades\Route;
@@ -45,9 +48,7 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     });
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // Citizen: deleghe aziendali
     Route::prefix('my')->name('my.')->group(function () {
@@ -82,10 +83,30 @@ Route::middleware('auth')->group(function () {
         Route::resource('tariffs', TariffController::class)
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
+        // Impersonazione
+        Route::post('users/{user}/impersonate', [ImpersonateController::class, 'take'])->name('users.impersonate');
+        Route::delete('impersonate', [ImpersonateController::class, 'leave'])->name('impersonate.leave');
+
+        // Impostazioni
         Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [SettingController::class, 'index'])->name('index');
+
             Route::get('mail', [SettingController::class, 'showMail'])->name('mail');
             Route::put('mail', [SettingController::class, 'updateMail'])->name('mail.update');
             Route::post('mail/test', [SettingController::class, 'testMail'])->name('mail.test');
+
+            Route::get('general', [SettingController::class, 'showGeneral'])->name('general');
+            Route::put('general', [SettingController::class, 'updateGeneral'])->name('general.update');
+
+            Route::get('branding', [SettingController::class, 'showBranding'])->name('branding');
+            Route::put('branding', [SettingController::class, 'updateBranding'])->name('branding.update');
+
+            Route::prefix('users')->name('users.')->group(function () {
+                Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('{user}', [UserController::class, 'show'])->name('show');
+                Route::patch('{user}/role', [UserController::class, 'updateRole'])->name('role');
+                Route::patch('{user}/entity', [UserController::class, 'updateEntity'])->name('entity');
+            });
         });
     });
 });

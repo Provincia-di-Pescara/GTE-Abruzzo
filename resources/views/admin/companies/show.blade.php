@@ -1,21 +1,19 @@
 @extends('layouts.admin')
-@section('title', $company->ragione_sociale)
 
 @section('content')
 <div class="mb-6 flex items-start justify-between">
     <div>
-        <nav class="text-sm text-slate-500 mb-2">
-            <a href="{{ route('admin.companies.index') }}" class="hover:text-slate-700">Aziende</a>
+        <nav class="text-[11px] font-semibold text-ink-3 uppercase tracking-wider mb-2">
+            <a href="{{ route('admin.companies.index') }}" class="hover:text-ink transition-colors">Aziende</a>
             <span class="mx-1">/</span>
             <span>{{ $company->ragione_sociale }}</span>
         </nav>
-        <h1 class="text-xl font-bold text-slate-900">{{ $company->ragione_sociale }}</h1>
-        <p class="text-sm font-mono text-slate-500 mt-0.5">P.IVA {{ $company->partita_iva }}</p>
+        <h1 class="text-xl font-bold tracking-tight">{{ $company->ragione_sociale }}</h1>
+        <p class="text-[13px] font-mono text-ink-2 mt-0.5">P.IVA {{ $company->partita_iva }}</p>
     </div>
     <div class="flex gap-2">
         @can('update', $company)
-        <a href="{{ route('admin.companies.edit', $company) }}"
-           class="px-4 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+        <a href="{{ route('admin.companies.edit', $company) }}" class="btn">
             Modifica
         </a>
         @endcan
@@ -23,7 +21,7 @@
         <form method="POST" action="{{ route('admin.companies.destroy', $company) }}"
               onsubmit="return confirm('Eliminare questa azienda?')">
             @csrf @method('DELETE')
-            <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-700 transition-colors">
+            <button type="submit" class="btn text-danger hover:bg-danger-bg border-line-2 hover:border-danger/30">
                 Elimina
             </button>
         </form>
@@ -34,11 +32,11 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {{-- Dati anagrafici --}}
     <div class="lg:col-span-1">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                <h2 class="text-sm font-semibold text-slate-700">Dati anagrafici</h2>
+        <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-line bg-surface-2">
+                <h2 class="text-sm font-semibold">Dati anagrafici</h2>
             </div>
-            <dl class="divide-y divide-slate-100">
+            <dl class="divide-y divide-line">
                 @foreach([
                     ['Ragione sociale', $company->ragione_sociale],
                     ['P.IVA', $company->partita_iva],
@@ -50,9 +48,9 @@
                     ['PEC', $company->pec ?? '—'],
                     ['Telefono', $company->telefono ?? '—'],
                 ] as [$label, $value])
-                <div class="flex px-4 py-2.5 text-sm">
-                    <dt class="w-28 shrink-0 text-slate-500">{{ $label }}</dt>
-                    <dd class="text-slate-900">{{ $value }}</dd>
+                <div class="flex flex-col px-5 py-2.5 text-[13px] hover:bg-surface-2 transition-colors">
+                    <dt class="font-medium text-ink-2 text-[11px] uppercase tracking-wider mb-0.5">{{ $label }}</dt>
+                    <dd class="text-ink">{{ $value }}</dd>
                 </div>
                 @endforeach
             </dl>
@@ -61,49 +59,60 @@
 
     {{-- Delegati --}}
     <div class="lg:col-span-2">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                <h2 class="text-sm font-semibold text-slate-700">Utenti delegati</h2>
-                <span class="text-xs text-slate-400">{{ $company->users->count() }} utenti</span>
+        <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-line bg-surface-2 flex items-center justify-between">
+                <h2 class="text-sm font-semibold">Utenti delegati</h2>
+                <x-chip>{{ $company->users->count() }} utenti</x-chip>
             </div>
             @if($company->users->isEmpty())
-            <p class="px-4 py-8 text-center text-sm text-slate-400">Nessun utente associato.</p>
+            <div class="py-12 text-center flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-full bg-surface-2 flex items-center justify-center text-ink-3 mb-4">
+                    <x-icon name="user" size="24" stroke="1.5" />
+                </div>
+                <p class="text-sm font-semibold">Nessun utente associato</p>
+                <p class="text-[13px] text-ink-2 mt-1">Le richieste di delega appariranno qui.</p>
+            </div>
             @else
-            <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
+            <table class="w-full text-left text-[13px]">
+                <thead class="text-[11px] font-semibold text-ink-3 uppercase tracking-wider border-b border-line bg-surface-2">
                     <tr>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Utente</th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Ruolo</th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Valida dal</th>
-                        <th class="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase">Stato</th>
+                        <th class="px-5 py-3 font-medium">Utente</th>
+                        <th class="px-5 py-3 font-medium">Ruolo</th>
+                        <th class="px-5 py-3 font-medium">Valida dal</th>
+                        <th class="px-5 py-3 font-medium">Stato</th>
                         @can('approveDelegation', $company)
-                        <th class="px-4 py-2"></th>
+                        <th class="px-5 py-3"></th>
                         @endcan
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-line">
                     @foreach($company->users as $user)
-                    <tr>
-                        <td class="px-4 py-2.5 text-sm">
-                            <div class="font-medium text-slate-900">{{ $user->name }}</div>
-                            <div class="text-xs text-slate-400">{{ $user->email }}</div>
+                    <tr class="row-hover transition-colors">
+                        <td class="px-5 py-3">
+                            <div class="flex items-center gap-3">
+                                <x-avatar :name="$user->name" tone="default" />
+                                <div>
+                                    <div class="font-medium text-ink">{{ $user->name }}</div>
+                                    <div class="text-[11px] text-ink-3">{{ $user->email }}</div>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-4 py-2.5 text-sm text-slate-600 capitalize">{{ $user->pivot->role }}</td>
-                        <td class="px-4 py-2.5 text-sm text-slate-600">{{ \Carbon\Carbon::parse($user->pivot->valid_from)->format('d/m/Y') }}</td>
-                        <td class="px-4 py-2.5">
+                        <td class="px-5 py-3 text-ink-2 capitalize">{{ $user->pivot->role }}</td>
+                        <td class="px-5 py-3 text-ink-2 font-mono text-[12px]">{{ \Carbon\Carbon::parse($user->pivot->valid_from)->format('d/m/Y') }}</td>
+                        <td class="px-5 py-3">
                             @if($user->pivot->approved_at)
-                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Approvata</span>
+                            <x-chip tone="success" dot="true">Approvata</x-chip>
                             @else
-                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">In attesa</span>
+                            <x-chip tone="amber" dot="true">In attesa</x-chip>
                             @endif
                         </td>
                         @can('approveDelegation', $company)
-                        <td class="px-4 py-2.5 text-right">
+                        <td class="px-5 py-3 text-right">
                             @if(!$user->pivot->approved_at)
                             <form method="POST" action="{{ route('admin.companies.delegation.action', [$company, $user]) }}" class="inline-flex gap-2">
                                 @csrf
-                                <button name="action" value="approve" class="text-xs text-green-700 font-medium hover:underline">Approva</button>
-                                <button name="action" value="reject" class="text-xs text-red-600 font-medium hover:underline"
+                                <button name="action" value="approve" class="btn btn-sm btn-ghost text-success hover:bg-success-bg hover:text-success border-success/30">Approva</button>
+                                <button name="action" value="reject" class="btn btn-sm btn-ghost text-danger hover:bg-danger-bg hover:text-danger border-danger/30"
                                         onclick="return confirm('Rifiutare questa delega?')">Rifiuta</button>
                             </form>
                             @endif
