@@ -32,6 +32,10 @@
                            class="px-3 py-1.5 rounded-md text-sm font-medium {{ request()->routeIs('my.vehicles*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }} transition-colors">
                             Miei Veicoli
                         </a>
+                        <a href="{{ route('my.routes.create') }}"
+                           class="px-3 py-1.5 rounded-md text-sm font-medium {{ request()->routeIs('my.routes*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }} transition-colors">
+                            Percorsi
+                        </a>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -63,5 +67,6 @@
     </main>
 </div>
 
+@stack('scripts')
 </body>
 </html>

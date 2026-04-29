@@ -6,9 +6,11 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\EntityController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TariffController;
+use App\Http\Controllers\Api\RoutingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OidcController;
 use App\Http\Controllers\Citizen\DelegationController;
+use App\Http\Controllers\Citizen\RouteBuilderController;
 use App\Http\Controllers\Citizen\VehicleController;
 use App\Http\Controllers\Setup\SetupController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +55,14 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('vehicles', VehicleController::class)
             ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        Route::resource('routes', RouteBuilderController::class)->only(['create', 'store', 'show']);
+    });
+
+    // API
+    Route::prefix('api')->name('api.')->group(function () {
+        Route::post('routing/snap', [RoutingController::class, 'snap'])->name('routing.snap');
+        Route::post('routing/alternatives', [RoutingController::class, 'alternatives'])->name('routing.alternatives');
     });
 
     // Admin
