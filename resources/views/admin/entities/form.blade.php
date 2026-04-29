@@ -82,6 +82,14 @@
             </div>
 
             <div>
+                <label for="codice_univoco_ainop" class="block text-sm font-medium text-slate-700">Codice AINOP</label>
+                <input type="text" id="codice_univoco_ainop" name="codice_univoco_ainop"
+                       value="{{ old('codice_univoco_ainop', $entity->codice_univoco_ainop) }}" maxlength="50"
+                       class="mt-1 block w-48 rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <p class="mt-1 text-xs text-slate-400">Codice univoco AINOP — stub per integrazione PDND (v1.0.0).</p>
+            </div>
+
+            <div>
                 <label for="indirizzo" class="block text-sm font-medium text-slate-700">Indirizzo sede</label>
                 <input type="text" id="indirizzo" name="indirizzo"
                        value="{{ old('indirizzo', $entity->indirizzo) }}"

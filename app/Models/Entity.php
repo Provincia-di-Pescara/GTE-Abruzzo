@@ -23,6 +23,7 @@ final class Entity extends Model
         'indirizzo',
         'codice_fisc_piva',
         'codice_sdi',
+        'codice_univoco_ainop',
     ];
 
     protected function casts(): array

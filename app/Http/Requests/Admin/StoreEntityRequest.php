@@ -30,6 +30,7 @@ final class StoreEntityRequest extends FormRequest
             'indirizzo' => ['nullable', 'string', 'max:255'],
             'codice_fisc_piva' => ['nullable', 'string', 'max:16'],
             'codice_sdi' => ['nullable', 'string', 'size:7'],
+            'codice_univoco_ainop' => ['nullable', 'string', 'max:50'],
         ];
     }
 }
