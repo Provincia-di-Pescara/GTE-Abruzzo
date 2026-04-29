@@ -44,6 +44,16 @@ return [
     | Override individual endpoints via OIDC_*_ENDPOINT env vars when the proxy
     | exposes them at non-standard paths.
     */
+    /*
+    |--------------------------------------------------------------------------
+    | OSRM — Self-hosted routing engine
+    |--------------------------------------------------------------------------
+    */
+    'osrm' => [
+        'base_url' => env('OSRM_BASE_URL', 'http://osrm:5000'),
+        'timeout' => (int) env('OSRM_TIMEOUT', 10),
+    ],
+
     'oidc' => [
         'client_id' => env('OIDC_CLIENT_ID'),
         'client_secret' => env('OIDC_CLIENT_SECRET'),
