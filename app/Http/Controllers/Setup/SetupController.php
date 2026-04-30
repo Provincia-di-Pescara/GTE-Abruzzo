@@ -170,7 +170,7 @@ final class SetupController extends Controller
         Config::set('mail.default', 'smtp');
 
         try {
-            Mail::to($adminEmail)->send(new TestMail());
+            Mail::to($adminEmail)->send(new TestMail);
 
             return redirect()->route('setup.step3')
                 ->with('success', 'Email di test inviata a '.$adminEmail.'.');
